@@ -1,0 +1,99 @@
+[gd_scene load_steps=6 format=3 uid="uid://dkwyk7x13qtnv"]
+
+[ext_resource type="Texture2D" uid="uid://dntk7jbv8pqn3" path="res://icon.svg" id="1_2mvqj"]
+[ext_resource type="Script" uid="uid://cfswrq5ihxacs" path="res://enemy/enemy.gd" id="1_pmsee"]
+[ext_resource type="Script" uid="uid://u1ynpkwr6rsj" path="res://state_machine/state_machine.gd" id="2_p200p"]
+[ext_resource type="Script" uid="uid://c33tw7ls6mxsj" path="res://state_machine/state_group.gd" id="3_pmsee"]
+[ext_resource type="Script" uid="uid://4j14g64vr0vy" path="res://state_machine/state.gd" id="4_1wwld"]
+
+[node name="Enemy" type="Node2D"]
+script = ExtResource("1_pmsee")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_2mvqj")
+
+[node name="StateMachine" type="Node" parent="."]
+script = ExtResource("2_p200p")
+metadata/_custom_type_script = "uid://u1ynpkwr6rsj"
+
+[node name="Movement" type="Node" parent="StateMachine" node_paths=PackedStringArray("default_state")]
+script = ExtResource("3_pmsee")
+default_state = NodePath("Idle")
+metadata/_custom_type_script = "uid://c33tw7ls6mxsj"
+
+[node name="Idle" type="Node" parent="StateMachine/Movement"]
+script = ExtResource("4_1wwld")
+metadata/_custom_type_script = "uid://4j14g64vr0vy"
+
+[node name="Flying" type="Node" parent="StateMachine/Movement"]
+script = ExtResource("4_1wwld")
+enable_process = true
+metadata/_custom_type_script = "uid://4j14g64vr0vy"
+
+[node name="Dead" type="Node" parent="StateMachine/Movement"]
+script = ExtResource("4_1wwld")
+metadata/_custom_type_script = "uid://4j14g64vr0vy"
+
+[node name="Health" type="Node" parent="StateMachine" node_paths=PackedStringArray("default_state")]
+script = ExtResource("3_pmsee")
+default_state = NodePath("Healthy")
+metadata/_custom_type_script = "uid://c33tw7ls6mxsj"
+
+[node name="Healthy" type="Node" parent="StateMachine/Health"]
+script = ExtResource("4_1wwld")
+metadata/_custom_type_script = "uid://4j14g64vr0vy"
+
+[node name="Hurt" type="Node" parent="StateMachine/Health"]
+script = ExtResource("4_1wwld")
+metadata/_custom_type_script = "uid://4j14g64vr0vy"
+
+[node name="Critical" type="Node" parent="StateMachine/Health"]
+script = ExtResource("4_1wwld")
+metadata/_custom_type_script = "uid://4j14g64vr0vy"
+
+[node name="Dead" type="Node" parent="StateMachine/Health"]
+script = ExtResource("4_1wwld")
+metadata/_custom_type_script = "uid://4j14g64vr0vy"
+
+[node name="Vulnerability" type="Node" parent="StateMachine" node_paths=PackedStringArray("default_state")]
+script = ExtResource("3_pmsee")
+default_state = NodePath("Vulnerable")
+metadata/_custom_type_script = "uid://c33tw7ls6mxsj"
+
+[node name="Vulnerable" type="Node" parent="StateMachine/Vulnerability"]
+script = ExtResource("4_1wwld")
+metadata/_custom_type_script = "uid://4j14g64vr0vy"
+
+[node name="Invulnerable" type="Node" parent="StateMachine/Vulnerability"]
+script = ExtResource("4_1wwld")
+enable_process = true
+metadata/_custom_type_script = "uid://4j14g64vr0vy"
+
+[node name="Dead" type="Node" parent="StateMachine/Vulnerability"]
+script = ExtResource("4_1wwld")
+metadata/_custom_type_script = "uid://4j14g64vr0vy"
+
+[node name="InvulnerabilityTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="IdleTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[node name="FlyingTimer" type="Timer" parent="."]
+wait_time = 4.0
+one_shot = true
+
+[connection signal="state_entered" from="StateMachine/Movement/Idle" to="." method="_on_idle_state_entered"]
+[connection signal="state_exited" from="StateMachine/Movement/Idle" to="." method="_on_idle_state_exited"]
+[connection signal="state_entered" from="StateMachine/Movement/Flying" to="." method="_on_flying_state_entered"]
+[connection signal="state_exited" from="StateMachine/Movement/Flying" to="." method="_on_flying_state_exited"]
+[connection signal="state_process" from="StateMachine/Movement/Flying" to="." method="_on_flying_state_process"]
+[connection signal="state_entered" from="StateMachine/Health/Healthy" to="." method="_on_healthy_state_entered"]
+[connection signal="state_entered" from="StateMachine/Health/Hurt" to="." method="_on_hurt_state_entered"]
+[connection signal="state_entered" from="StateMachine/Health/Critical" to="." method="_on_critical_state_entered"]
+[connection signal="state_entered" from="StateMachine/Health/Dead" to="." method="_on_dead_state_entered"]
+[connection signal="state_entered" from="StateMachine/Vulnerability/Vulnerable" to="." method="_on_vulnerable_state_entered"]
+[connection signal="state_entered" from="StateMachine/Vulnerability/Invulnerable" to="." method="_on_invulnerable_state_entered"]
+[connection signal="state_exited" from="StateMachine/Vulnerability/Invulnerable" to="." method="_on_invulnerable_state_exited"]
+[connection signal="state_process" from="StateMachine/Vulnerability/Invulnerable" to="." method="_on_invulnerable_state_process"]
