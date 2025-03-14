@@ -15,10 +15,8 @@ func _ready() -> void:
 	set_physics_process(false)
 
 func enter()->void:
-	if enable_process:
-		set_process(true)
-	if enable_physics_process:
-		set_physics_process(true)
+	set_process(enable_process)
+	set_physics_process(enable_physics_process)
 	state_entered.emit()
 	
 func exit()->void:
